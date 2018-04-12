@@ -95,11 +95,27 @@ CAMLprim value uECC_compress_stub(value pk, value cpk, value curve) {
     return Val_unit;
 }
 
-CAMLprim value uECC_decompress_stub(value pk, value cpk, value curve) {
+CAMLprim value uECC_decompress_stub(value cpk, value pk, value curve) {
     uECC_decompress(Caml_ba_data_val(cpk),
                     Caml_ba_data_val(pk),
                     Curve_val(curve));
     return Val_unit;
+}
+
+CAMLprim value uECC_sign_stub(value sk, value msg, value signature, value curve) {
+    return Val_bool(uECC_sign(Caml_ba_data_val(sk),
+                              Caml_ba_data_val(msg),
+                              Caml_ba_array_val(msg)->dim[0],
+                              Caml_ba_data_val(signature),
+                              Curve_val(curve)));
+}
+
+CAMLprim value uECC_verify_stub(value pk, value msg, value signature, value curve) {
+    return Val_bool(uECC_verify(Caml_ba_data_val(pk),
+                                Caml_ba_data_val(msg),
+                                Caml_ba_array_val(msg)->dim[0],
+                                Caml_ba_data_val(signature),
+                                Curve_val(curve)));
 }
 
 /* --------------------------------------------------------------------------

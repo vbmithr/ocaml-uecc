@@ -31,6 +31,10 @@ type public
 type (_, _) key
 (** Type of a key, parametrized by its curve and kind. *)
 
+val equal : ('a, 'b) key -> ('a, 'b) key -> bool
+(** [equal k1 k2] is [true] if [k1] is represented by the same bytes
+    as [k2], and [false] otherwise. *)
+
 val neuterize : ('a, _) key -> ('a, public) key
 (** [neuterize k] is [k] if [k] is public, or is the associated public
     key of [k] if [k] is secret. *)
@@ -42,7 +46,8 @@ val sk_of_bytes :
 
 val pk_of_bytes : 'a t -> Bigstring.t -> ('a, public) key option
 (** [pk_of_bytes curve buf] is [Some pk] if [buf] contains a valid
-    serialization of a [curve] public key, or [None] otherwise. *)
+    (compressed) serialization of a [curve] public key, or [None]
+    otherwise. *)
 
 val to_bytes : (_, _) key -> Bigstring.t
 (** [to_bytes k] is a serialization of [k]. *)
@@ -55,6 +60,22 @@ val keypair : 'a t -> (('a, secret) key * ('a, public) key) option
 (** [keypair curve] is [Some (sk, pk)] where [sk] and [pk] is freshly
     generated keypair for [curve] if everything went well, or [None]
     otherwise. *)
+
+val sign : (_, secret) key -> Bigstring.t -> Bigstring.t option
+(** [sign sk msg] is [Some signature] where [signature] is a valid
+    signature of [msg] with secret key [sk], or [None] if an error
+    occured. *)
+
+val write_sign :
+  (_, secret) key -> Bigstring.t -> msg:Bigstring.t -> int
+(** [write_sign sk ~msg buf] writes a signature of [msg] with [sk] to
+    [buf], and returns the number of bytes written (0 in the case of an
+    error). *)
+
+val verify :
+  (_, public) key -> msg:Bigstring.t -> signature:Bigstring.t -> bool
+(** [verify pk ~msg ~signature] is [true] if [signature] is a valid
+    signature of [msg] corresponding to [pk]. *)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2017 Vincent Bernardoff
