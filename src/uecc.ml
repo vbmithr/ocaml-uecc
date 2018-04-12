@@ -27,28 +27,28 @@ let pk_sizes = Hashtbl.create 5
 
 let secp160r1 =
   let c = curve 0 in
-  Hashtbl.replace sk_sizes c (sk_size c) ;
-  Hashtbl.replace pk_sizes c (pk_size c) ;
+  Hashtbl.add sk_sizes c (sk_size c) ;
+  Hashtbl.add pk_sizes c (pk_size c) ;
   Secp160r1 c
 let secp192r1 =
   let c = curve 1 in
-  Hashtbl.replace sk_sizes c (sk_size c) ;
-  Hashtbl.replace pk_sizes c (pk_size c) ;
+  Hashtbl.add sk_sizes c (sk_size c) ;
+  Hashtbl.add pk_sizes c (pk_size c) ;
   Secp192r1 c
 let secp224r1 =
   let c = curve 2 in
-  Hashtbl.replace sk_sizes c (sk_size c) ;
-  Hashtbl.replace pk_sizes c (pk_size c) ;
+  Hashtbl.add sk_sizes c (sk_size c) ;
+  Hashtbl.add pk_sizes c (pk_size c) ;
   Secp224r1 c
 let secp256r1 =
   let c = curve 3 in
-  Hashtbl.replace sk_sizes c (sk_size c) ;
-  Hashtbl.replace pk_sizes c (pk_size c) ;
+  Hashtbl.add sk_sizes c (sk_size c) ;
+  Hashtbl.add pk_sizes c (pk_size c) ;
   Secp256r1 c
 let secp256k1 =
   let c = curve 4 in
-  Hashtbl.replace sk_sizes c (sk_size c) ;
-  Hashtbl.replace pk_sizes c (pk_size c) ;
+  Hashtbl.add sk_sizes c (sk_size c) ;
+  Hashtbl.add pk_sizes c (pk_size c) ;
   Secp256k1 c
 
 let to_curve : type a. a t -> curve = function
@@ -119,9 +119,9 @@ let neuterize : type a b. (a, b) key -> (a, public) key = function
 let pk_of_bytes :
   type a. a t -> Bigstring.t ->
   ((a, public) key) option = fun curve compressed ->
-  let c = to_curve curve in
   if Bigstring.length compressed <> compressed_size curve then None
   else
+    let c = to_curve curve in
     let pk = Bigstring.create (pk_size curve) in
     decompress compressed pk c ;
     if valid_pk pk c then Some (Pk (pk, curve))

@@ -1,5 +1,7 @@
 open Uecc
 
+let nb_iterations = 1
+
 let test_sksize () =
   ignore (sk_size secp160r1) ;
   ignore (sk_size secp192r1) ;
@@ -16,6 +18,35 @@ let test_pksize () =
   ignore (pk_size secp256k1) ;
   ()
 
+let test_export_curve curve =
+  match keypair curve with
+  | None -> assert false
+  | Some (sk, pk) ->
+    let sk_bytes = to_bytes sk in
+    let pk_bytes = to_bytes pk in
+    match sk_of_bytes curve sk_bytes,
+          pk_of_bytes curve pk_bytes
+    with
+    | Some (sk', pk'), Some pk'' ->
+      assert (equal sk sk') ;
+      assert (equal pk pk') ;
+      assert (equal pk pk'') ;
+      assert (equal pk' pk') ;
+    | _ -> assert false
+
+let test_export_curve curve =
+  for i = 0 to nb_iterations - 1 do
+    test_export_curve curve
+  done
+
+let test_export () =
+  test_export_curve secp160r1 ;
+  test_export_curve secp192r1 ;
+  test_export_curve secp224r1 ;
+  test_export_curve secp256r1 ;
+  test_export_curve secp256k1 ;
+  ()
+
 let test_keypair_curve curve =
   match keypair curve with
   | None -> assert false
@@ -26,7 +57,7 @@ let test_keypair_curve curve =
     assert (equal pk pk')
 
 let test_keypair_curve curve =
-  for i = 0 to 1 do
+  for i = 0 to nb_iterations - 1 do
     test_keypair_curve curve
   done
 
@@ -57,7 +88,7 @@ let test_sign_curve curve =
       assert (verify pk ~msg ~signature)
 
 let test_sign_curve curve =
-  for i = 0 to 1 do
+  for i = 0 to nb_iterations - 1 do
     test_sign_curve curve
   done
 
@@ -72,6 +103,7 @@ let test_sign () =
 let basic = [
   "sksize", `Quick, test_sksize ;
   "pksize", `Quick, test_pksize ;
+  "export", `Quick, test_export ;
   "keypair", `Quick, test_keypair ;
   "sign", `Quick, test_sign ;
 ]
