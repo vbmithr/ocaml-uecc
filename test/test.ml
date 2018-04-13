@@ -1,21 +1,24 @@
+open Alcotest
 open Uecc
 
-let nb_iterations = 1
+let nb_iterations = 10
+
+let checki = check int
 
 let test_sksize () =
-  ignore (sk_size secp160r1) ;
-  ignore (sk_size secp192r1) ;
-  ignore (sk_size secp224r1) ;
-  ignore (sk_size secp256r1) ;
-  ignore (sk_size secp256k1) ;
+  checki __LOC__ 21 (sk_size secp160r1) ;
+  checki __LOC__ 24 (sk_size secp192r1) ;
+  checki __LOC__ 28 (sk_size secp224r1) ;
+  checki __LOC__ 32 (sk_size secp256r1) ;
+  checki __LOC__ 32 (sk_size secp256k1) ;
   ()
 
 let test_pksize () =
-  ignore (pk_size secp160r1) ;
-  ignore (pk_size secp192r1) ;
-  ignore (pk_size secp224r1) ;
-  ignore (pk_size secp256r1) ;
-  ignore (pk_size secp256k1) ;
+  checki __LOC__ 40 (pk_size secp160r1) ;
+  checki __LOC__ 48 (pk_size secp192r1) ;
+  checki __LOC__ 56 (pk_size secp224r1) ;
+  checki __LOC__ 64 (pk_size secp256r1) ;
+  checki __LOC__ 64 (pk_size secp256k1) ;
   ()
 
 let test_export_curve curve =
@@ -24,15 +27,22 @@ let test_export_curve curve =
   | Some (sk, pk) ->
     let sk_bytes = to_bytes sk in
     let pk_bytes = to_bytes pk in
-    match sk_of_bytes curve sk_bytes,
-          pk_of_bytes curve pk_bytes
-    with
-    | Some (sk', pk'), Some pk'' ->
-      assert (equal sk sk') ;
-      assert (equal pk pk') ;
-      assert (equal pk pk'') ;
-      assert (equal pk' pk') ;
-    | _ -> assert false
+    checki __LOC__ (sk_size curve) (Bigstring.length sk_bytes) ;
+    checki __LOC__ (compressed_size curve) (Bigstring.length pk_bytes) ;
+    begin match sk_of_bytes curve sk_bytes with
+      | Some (sk', pk') -> assert (Uecc.equal sk sk')
+      | _ -> assert false
+    end ;
+    ()
+    (* match sk_of_bytes curve sk_bytes,
+     *       pk_of_bytes curve pk_bytes
+     * with
+     * | Some (sk', pk'), Some pk'' ->
+     *   assert (equal sk sk') ;
+     *   assert (equal pk pk') ;
+     *   assert (equal pk pk'') ;
+     *   assert (equal pk' pk') ;
+     * | _ -> assert false *)
 
 let test_export_curve curve =
   for i = 0 to nb_iterations - 1 do
@@ -104,8 +114,8 @@ let basic = [
   "sksize", `Quick, test_sksize ;
   "pksize", `Quick, test_pksize ;
   "export", `Quick, test_export ;
-  "keypair", `Quick, test_keypair ;
-  "sign", `Quick, test_sign ;
+  (* "keypair", `Quick, test_keypair ;
+   * "sign", `Quick, test_sign ; *)
 ]
 
 let () =

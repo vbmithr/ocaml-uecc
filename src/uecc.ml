@@ -159,10 +159,8 @@ let write_key :
 
 let keypair :
   type a. a t -> ((a, secret) key * (a, public) key) option = fun t ->
-  let sklen = sk_size t in
-  let pklen = pk_size t in
-  let sk = Bigstring.create sklen in
-  let pk = Bigstring.create pklen in
+  let sk = Bigstring.create (sk_size t) in
+  let pk = Bigstring.create (pk_size t) in
   match keypair pk sk (to_curve t) with
   | true -> Some (Sk (sk, t), Pk (pk, t))
   | false -> None

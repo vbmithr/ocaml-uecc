@@ -21,10 +21,17 @@ val secp256k1 : secp256k1 t
 (** Supported curves. *)
 
 val sk_size : _ t -> int
-(** [sk_size] is the size in bytes of secret keys from [curve]. *)
+(** [sk_size curve] is the size in bytes of secret keys from
+    [curve]. Typically the same as the curve size, (i.e. 32 bytes for
+    [secp256r1]) except for [secp160r1] which is 21 bytes. *)
 
 val pk_size : _ t -> int
-(** [pk_size] is the size in bytes of public keys from [curve]. *)
+(** [pk_size curve] is the size in bytes of public keys from
+    [curve]. Equals to [2*curve_size]. *)
+
+val compressed_size : _ t -> int
+(** [compressed_size curve] is the size in bytes of compressed public
+    keys from [curve]. Equals to [pk_size curve/2+1]. *)
 
 type secret
 type public
