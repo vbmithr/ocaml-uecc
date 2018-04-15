@@ -84,9 +84,9 @@ external valid_pk :
   Bigstring.t -> curve -> bool = "uECC_valid_public_key_stub" [@@noalloc]
 
 external compress :
-  Bigstring.t -> Bigstring.t -> curve -> unit = "uECC_compress" [@@noalloc]
+  Bigstring.t -> Bigstring.t -> curve -> unit = "uECC_compress_stub" [@@noalloc]
 external decompress :
-  Bigstring.t -> Bigstring.t -> curve -> unit = "uECC_decompress" [@@noalloc]
+  Bigstring.t -> Bigstring.t -> curve -> unit = "uECC_decompress_stub" [@@noalloc]
 
 type secret
 type public

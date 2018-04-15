@@ -29,20 +29,14 @@ let test_export_curve curve =
     let pk_bytes = to_bytes pk in
     checki __LOC__ (sk_size curve) (Bigstring.length sk_bytes) ;
     checki __LOC__ (compressed_size curve) (Bigstring.length pk_bytes) ;
-    begin match sk_of_bytes curve sk_bytes with
-      | Some (sk', pk') -> assert (Uecc.equal sk sk')
-      | _ -> assert false
-    end ;
-    ()
-    (* match sk_of_bytes curve sk_bytes,
-     *       pk_of_bytes curve pk_bytes
-     * with
-     * | Some (sk', pk'), Some pk'' ->
-     *   assert (equal sk sk') ;
-     *   assert (equal pk pk') ;
-     *   assert (equal pk pk'') ;
-     *   assert (equal pk' pk') ;
-     * | _ -> assert false *)
+    match sk_of_bytes curve sk_bytes,
+          pk_of_bytes curve pk_bytes with
+    | Some (sk', pk'), Some pk'' ->
+      assert (equal sk sk') ;
+      assert (equal pk pk') ;
+      assert (equal pk pk'') ;
+      assert (equal pk' pk') ;
+    | _ -> assert false
 
 let test_export_curve curve =
   for i = 0 to nb_iterations - 1 do
@@ -114,8 +108,8 @@ let basic = [
   "sksize", `Quick, test_sksize ;
   "pksize", `Quick, test_pksize ;
   "export", `Quick, test_export ;
-  (* "keypair", `Quick, test_keypair ;
-   * "sign", `Quick, test_sign ; *)
+  "keypair", `Quick, test_keypair ;
+  "sign", `Quick, test_sign ;
 ]
 
 let () =
