@@ -28,8 +28,31 @@ static int default_RNG(uint8_t *dest, unsigned size) {
 }
 #define default_RNG_defined 1
 
-#elif defined(unix) || defined(__linux__) || defined(__unix__) || defined(__unix) || \
-    (defined(__APPLE__) && defined(__MACH__)) || defined(uECC_POSIX)
+#elif defined(__linux__)
+/* Linux */
+
+#include <sys/random.h>
+static int default_RNG(uint8_t* dest, unsigned size) {
+    getrandom(dest, size, 0);
+    return 1;
+}
+#define default_RNG_defined 1
+
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+/* OSX and BSDs */
+
+#include <sys/param.h>
+#if defined(BSD)
+#include <stdlib.h>
+static int default_RNG(uint8_t* dest, unsigned size) {
+    arc4random_buf(dest, size);
+    return 1;
+}
+#define default_RNG_defined 1
+#endif
+#endif
+
+#elif defined(__unix__) || defined(uECC_POSIX)
 
 /* Some POSIX-like system with /dev/urandom or /dev/random. */
 #include <sys/types.h>
