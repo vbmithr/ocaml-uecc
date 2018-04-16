@@ -68,6 +68,16 @@ val keypair : 'a t -> (('a, secret) key * ('a, public) key) option
     generated keypair for [curve] if everything went well, or [None]
     otherwise. *)
 
+val dh : ('a, secret) key -> ('a, public) key -> Bigstring.t option
+(** [dh sk pk] is [Some buf] where [buf] contains a shared secret
+    value computed from your [sk] and someone else's [pk] if everything
+    went well, or [None] otherwise. *)
+
+val write_dh : ('a, secret) key -> ('a, public) key -> Bigstring.t -> int
+(** [write_dh sk pk buf] writes a shared secret value computed from your
+    [sk] and someone else's [pk] and returns the number of bytes
+    actually written (0 in the case of an error). *)
+
 val sign : (_, secret) key -> Bigstring.t -> Bigstring.t option
 (** [sign sk msg] is [Some signature] where [signature] is a valid
     signature of [msg] with secret key [sk], or [None] if an error

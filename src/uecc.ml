@@ -165,6 +165,24 @@ let keypair :
   | true -> Some (Sk (sk, t), Pk (pk, t))
   | false -> None
 
+external dh :
+  Bigstring.t -> Bigstring.t -> Bigstring.t -> curve -> bool =
+  "uECC_shared_secret_stub" [@@noalloc]
+
+let write_dh (Sk (sk, c)) (Pk (pk, _)) buf =
+  let secret_len = pk_size c / 2 in
+  if Bigstring.length buf < secret_len then 0
+  else
+    match dh pk sk buf (to_curve c) with
+    | true -> secret_len
+    | false -> 0
+
+let dh (Sk (sk, c)) (Pk (pk, _)) =
+  let secret = Bigstring.create (pk_size c / 2) in
+  match dh pk sk secret (to_curve c) with
+  | true -> Some secret
+  | false -> None
+
 external sign :
   Bigstring.t -> Bigstring.t -> Bigstring.t -> curve -> bool =
   "uECC_sign_stub" [@@noalloc]

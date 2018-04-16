@@ -102,6 +102,13 @@ CAMLprim value uECC_decompress_stub(value cpk, value pk, value curve) {
     return Val_unit;
 }
 
+CAMLprim value uECC_shared_secret_stub(value pk, value sk, value secret, value curve) {
+    return Val_bool(uECC_shared_secret(Caml_ba_data_val(pk),
+                                       Caml_ba_data_val(sk),
+                                       Caml_ba_data_val(secret),
+                                       Curve_val(curve)));
+}
+
 CAMLprim value uECC_sign_stub(value sk, value msg, value signature, value curve) {
     return Val_bool(uECC_sign(Caml_ba_data_val(sk),
                               Caml_ba_data_val(msg),

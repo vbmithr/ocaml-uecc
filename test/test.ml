@@ -73,6 +73,29 @@ let test_keypair () =
   test_keypair_curve secp256k1 ;
   ()
 
+let test_dh_curve curve =
+  match keypair curve, keypair curve with
+  | Some (sk, pk), Some (sk', pk') ->
+    begin match dh sk pk', dh sk' pk with
+      | Some secret, Some secret' ->
+        assert (Bigstring.equal secret secret')
+      | _ -> assert false
+    end
+  | _ -> assert false
+
+let test_dh_curve curve =
+  for i = 0 to nb_iterations - 1 do
+    test_dh_curve curve
+  done
+
+let test_dh () =
+  test_dh_curve secp160r1 ;
+  test_dh_curve secp192r1 ;
+  test_dh_curve secp224r1 ;
+  test_dh_curve secp256r1 ;
+  test_dh_curve secp256k1 ;
+  ()
+
 let msg =
   Bigstring.of_string "Voulez-vous coucher avec moi, ce soir ?"
 
@@ -109,6 +132,7 @@ let basic = [
   "pksize", `Quick, test_pksize ;
   "export", `Quick, test_export ;
   "keypair", `Quick, test_keypair ;
+  "dh", `Quick, test_dh ;
   "sign", `Quick, test_sign ;
 ]
 
