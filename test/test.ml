@@ -25,10 +25,10 @@ let test_export_curve curve =
   match keypair curve with
   | None -> assert false
   | Some (sk, pk) ->
-    let sk_bytes = to_bytes sk in
-    let pk_bytes = to_bytes pk in
+    let sk_bytes = to_bytes ~compress:false sk in
+    let pk_bytes = to_bytes ~compress:false pk in
     checki __LOC__ (sk_size curve) (Bigstring.length sk_bytes) ;
-    checki __LOC__ (compressed_size curve) (Bigstring.length pk_bytes) ;
+    checki __LOC__ (pk_size curve + 1) (Bigstring.length pk_bytes) ;
     match sk_of_bytes curve sk_bytes,
           pk_of_bytes curve pk_bytes with
     | Some (sk', pk'), Some pk'' ->
@@ -49,6 +49,36 @@ let test_export () =
   test_export_curve secp224r1 ;
   test_export_curve secp256r1 ;
   test_export_curve secp256k1 ;
+  ()
+
+let test_export_curve_compressed curve =
+  match keypair curve with
+  | None -> assert false
+  | Some (sk, pk) ->
+    let sk_bytes = to_bytes sk in
+    let pk_bytes = to_bytes pk in
+    checki __LOC__ (sk_size curve) (Bigstring.length sk_bytes) ;
+    checki __LOC__ (compressed_size curve) (Bigstring.length pk_bytes) ;
+    match sk_of_bytes curve sk_bytes,
+          pk_of_bytes curve pk_bytes with
+    | Some (sk', pk'), Some pk'' ->
+      assert (equal sk sk') ;
+      assert (equal pk pk') ;
+      assert (equal pk pk'') ;
+      assert (equal pk' pk') ;
+    | _ -> assert false
+
+let test_export_curve_compressed curve =
+  for i = 0 to nb_iterations - 1 do
+    test_export_curve_compressed curve
+  done
+
+let test_export_compressed () =
+  test_export_curve_compressed secp160r1 ;
+  test_export_curve_compressed secp192r1 ;
+  test_export_curve_compressed secp224r1 ;
+  test_export_curve_compressed secp256r1 ;
+  test_export_curve_compressed secp256k1 ;
   ()
 
 let test_keypair_curve curve =
@@ -131,6 +161,7 @@ let basic = [
   "sksize", `Quick, test_sksize ;
   "pksize", `Quick, test_pksize ;
   "export", `Quick, test_export ;
+  "export_compressed", `Quick, test_export_compressed ;
   "keypair", `Quick, test_keypair ;
   "dh", `Quick, test_dh ;
   "sign", `Quick, test_sign ;

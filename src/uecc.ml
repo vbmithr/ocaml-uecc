@@ -118,14 +118,22 @@ let neuterize : type a b. (a, b) key -> (a, public) key = function
 
 let pk_of_bytes :
   type a. a t -> Bigstring.t ->
-  ((a, public) key) option = fun curve compressed ->
-  if Bigstring.length compressed <> compressed_size curve then None
-  else
-    let c = to_curve curve in
-    let pk = Bigstring.create (pk_size curve) in
-    decompress compressed pk c ;
-    if valid_pk pk c then Some (Pk (pk, curve))
-    else None
+  ((a, public) key) option = fun curve buf ->
+  match Bigstring.length buf with
+  | len when len = compressed_size curve ->
+      let c = to_curve curve in
+      let pk = Bigstring.create (pk_size curve) in
+      decompress buf pk c ;
+      if valid_pk pk c then Some (Pk (pk, curve))
+      else None
+  | len when len = pk_size curve + 1 ->
+      let c = to_curve curve in
+      let pk = Bigstring.create (pk_size curve) in
+      Bigstring.blit buf 1 pk 0 (len - 1) ;
+      if Bigstring.get buf 0 = '\004' && valid_pk pk c then
+        Some (Pk (pk, curve))
+      else None
+  | _ -> None
 
 let sk_of_bytes :
   type a. a t -> Bigstring.t ->
@@ -139,23 +147,38 @@ let sk_of_bytes :
     with _ -> None
 
 let to_bytes :
-  type a b. (a, b) key -> Bigstring.t = function
-  | Sk (sk, _) -> Bigstring.copy sk
-  | Pk (pk, c) ->
-    let compressed = Bigstring.create (compressed_size c) in
-    compress pk compressed (to_curve c) ;
-    compressed
+  type a b. ?compress:bool -> (a, b) key -> Bigstring.t =
+  fun ?compress:(comp=true) -> function
+    | Sk (sk, _) -> Bigstring.copy sk
+    | Pk (pk, c) ->
+        if comp then
+          let buf = Bigstring.create (compressed_size c) in
+          compress pk buf (to_curve c) ;
+          buf
+        else
+          let len = pk_size c in
+          let buf = Bigstring.create (len + 1) in
+          Bigstring.set buf 0 '\004' ;
+          Bigstring.blit pk 0 buf 1 len ;
+          buf
 
 let write_key :
-  type a b. Bigstring.t -> (a, b) key -> int = fun buf -> function
-  | Pk (k, _) ->
-    let len = Bigstring.length k in
-    Bigstring.blit k 0 buf 0 len ;
-    len
-  | Sk (k, _) ->
-    let len = Bigstring.length k in
-    Bigstring.blit k 0 buf 0 len ;
-    len
+  type a b. ?compress:bool -> Bigstring.t -> (a, b) key -> int =
+  fun ?compress:(comp=true) buf -> function
+    | Sk (sk, _) ->
+        let len = Bigstring.length sk in
+        Bigstring.blit sk 0 buf 0 len ;
+        len
+    | Pk (pk, c) ->
+        if comp then begin
+          compress pk buf (to_curve c) ;
+          compressed_size c
+        end
+        else
+          let len = Bigstring.length pk in
+          Bigstring.set buf 0 '\004' ;
+          Bigstring.blit pk 0 buf 1 len ;
+          len + 1
 
 let keypair :
   type a. a t -> ((a, secret) key * (a, public) key) option = fun t ->

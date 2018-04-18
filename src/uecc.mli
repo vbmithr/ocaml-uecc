@@ -53,13 +53,14 @@ val sk_of_bytes :
 
 val pk_of_bytes : 'a t -> Bigstring.t -> ('a, public) key option
 (** [pk_of_bytes curve buf] is [Some pk] if [buf] contains a valid
-    (compressed) serialization of a [curve] public key, or [None]
-    otherwise. *)
+    serialization of a [curve] public key, or [None] otherwise. *)
 
-val to_bytes : (_, _) key -> Bigstring.t
-(** [to_bytes k] is a serialization of [k]. *)
+val to_bytes : ?compress:bool -> (_, _) key -> Bigstring.t
+(** [to_bytes ?compress k] is a serialization of [k]. If [compress] is
+    [true] (the default) and [k] is a public key, the public key will
+    be in compressed format. *)
 
-val write_key : Bigstring.t -> (_, _) key -> int
+val write_key : ?compress:bool -> Bigstring.t -> (_, _) key -> int
 (** [write_key buf k] writes [k] at [buf] and returns the number of
     bytes actually written. *)
 
