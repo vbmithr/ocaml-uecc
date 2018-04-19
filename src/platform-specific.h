@@ -28,8 +28,8 @@ static int default_RNG(uint8_t *dest, unsigned size) {
 }
 #define default_RNG_defined 1
 
-#elif defined(__linux__)
-/* Linux */
+#elif defined(__linux__) || (defined __sun)
+/* Linux and Solaris */
 
 #include <sys/random.h>
 static int default_RNG(uint8_t* dest, unsigned size) {
@@ -38,56 +38,18 @@ static int default_RNG(uint8_t* dest, unsigned size) {
 }
 #define default_RNG_defined 1
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-/* OSX and BSDs */
-
+#elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <sys/param.h>
 #if defined(BSD)
+/* OSX and BSDs */
+
 #include <stdlib.h>
 static int default_RNG(uint8_t* dest, unsigned size) {
     arc4random_buf(dest, size);
     return 1;
 }
 #define default_RNG_defined 1
-#endif
-#endif
-
-#elif defined(__unix__) || defined(uECC_POSIX)
-
-/* Some POSIX-like system with /dev/urandom or /dev/random. */
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#ifndef O_CLOEXEC
-    #define O_CLOEXEC 0
-#endif
-
-static int default_RNG(uint8_t *dest, unsigned size) {
-    int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-    if (fd == -1) {
-        fd = open("/dev/random", O_RDONLY | O_CLOEXEC);
-        if (fd == -1) {
-            return 0;
-        }
-    }
-    
-    char *ptr = (char *)dest;
-    size_t left = size;
-    while (left > 0) {
-        ssize_t bytes_read = read(fd, ptr, left);
-        if (bytes_read <= 0) { // read failed
-            close(fd);
-            return 0;
-        }
-        left -= bytes_read;
-        ptr += bytes_read;
-    }
-    
-    close(fd);
-    return 1;
-}
-#define default_RNG_defined 1
+#endif /* defined(BSD) */
 
 #endif /* platform */
 
