@@ -33,8 +33,8 @@ static int default_RNG(uint8_t *dest, unsigned size) {
 
 #include <sys/random.h>
 static int default_RNG(uint8_t* dest, unsigned size) {
-    getrandom(dest, size, 0);
-    return 1;
+    ssize_t nb_written = getrandom(dest, size, 0);
+    return ((nb_written == size) ? 1 : 0);
 }
 #define default_RNG_defined 1
 
