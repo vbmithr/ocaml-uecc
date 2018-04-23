@@ -6,6 +6,10 @@
   (libraries (alcotest uecc))))
 
 (alias
- ((name    runtest)
+ ((name    runtest-uecc)
   (deps    (test.exe))
   (action  (run ${<}))))
+
+(alias
+ ((name    runtest)
+  (deps    ((alias runtest-uecc)))))

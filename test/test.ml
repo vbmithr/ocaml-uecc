@@ -39,7 +39,7 @@ let test_export_curve curve =
     | _ -> assert false
 
 let test_export_curve curve =
-  for i = 0 to nb_iterations - 1 do
+  for _i = 0 to nb_iterations - 1 do
     test_export_curve curve
   done
 
@@ -69,7 +69,7 @@ let test_export_curve_compressed curve =
     | _ -> assert false
 
 let test_export_curve_compressed curve =
-  for i = 0 to nb_iterations - 1 do
+  for _i = 0 to nb_iterations - 1 do
     test_export_curve_compressed curve
   done
 
@@ -91,7 +91,7 @@ let test_keypair_curve curve =
     assert (equal pk pk')
 
 let test_keypair_curve curve =
-  for i = 0 to nb_iterations - 1 do
+  for _i = 0 to nb_iterations - 1 do
     test_keypair_curve curve
   done
 
@@ -114,7 +114,7 @@ let test_dh_curve curve =
   | _ -> assert false
 
 let test_dh_curve curve =
-  for i = 0 to nb_iterations - 1 do
+  for _i = 0 to nb_iterations - 1 do
     test_dh_curve curve
   done
 
@@ -145,7 +145,7 @@ let test_sign_curve curve =
       assert (verify pk ~msg ~signature)
 
 let test_sign_curve curve =
-  for i = 0 to nb_iterations - 1 do
+  for _i = 0 to nb_iterations - 1 do
     test_sign_curve curve
   done
 
