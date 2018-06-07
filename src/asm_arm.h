@@ -159,9 +159,9 @@ uECC_VLI_API uECC_word_t uECC_vli_sub(uECC_word_t *result,
 #if (uECC_PLATFORM != uECC_arm_thumb)
 
 #if uECC_ARM_USE_UMAAL
-    #include "asm_arm_mult_square_umaal.inc"
+    #include "asm_arm_mult_square_umaal.h"
 #else
-    #include "asm_arm_mult_square.inc"
+    #include "asm_arm_mult_square.h"
 #endif
 
 #if (uECC_OPTIMIZATION_LEVEL == 3)
