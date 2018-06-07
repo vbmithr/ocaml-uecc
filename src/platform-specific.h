@@ -28,13 +28,26 @@ static int default_RNG(uint8_t *dest, unsigned size) {
 }
 #define default_RNG_defined 1
 
-#elif defined(__linux__) || (defined __sun)
+#elif (defined(__linux__) && (__GLIBC__ > 2 || __GLIBC_MINOR__ > 24)) || (defined __sun)
 /* Linux and Solaris */
 
 #include <sys/random.h>
 static int default_RNG(uint8_t* dest, unsigned size) {
     ssize_t nb_written = getrandom(dest, size, 0);
     return ((nb_written == size) ? 1 : 0);
+}
+#define default_RNG_defined 1
+
+#elif defined (__linux__) /* No glibc */
+#define _GNU_SOURCE
+#include <unistd.h>
+#include <sys/syscall.h>
+static int default_RNG(uint8_t* dest, unsigned size) {
+    int ret;
+    ret = syscall(SYS_getrandom, dest, size, 0);
+    if (ret != size)
+        return 0;
+    return 1;
 }
 #define default_RNG_defined 1
 
